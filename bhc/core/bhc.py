@@ -8,8 +8,7 @@ from scipy.special import gammaln
 import bhc.api as api
 
 
-class BayesianHierarchicalClustering(
-        api.AbstractBayesianBasedHierarchicalClustering):
+class BayesianHierarchicalClustering(api.AbstractBayesianBasedHierarchicalClustering):
     """
     Reference: HELLER, Katherine A.; GHAHRAMANI, Zoubin.
                Bayesian hierarchical clustering.
@@ -26,7 +25,7 @@ class BayesianHierarchicalClustering(
 
         weights = []
 
-        # active nodes
+        # active nodes (all)
         active_nodes = np.arange(n_objects)
         # assignments - starting each point in its own cluster
         assignments = np.arange(n_objects)
@@ -41,7 +40,8 @@ class BayesianHierarchicalClustering(
         for i in range(n_objects):
             # compute log(d_k)
             log_d[i] = BayesianHierarchicalClustering.__calc_log_d(
-                self.alpha, n[i], None)
+                self.alpha, n[i], None
+            )
             # compute log(p_i)
             log_p[i] = self.model.calc_log_mlh(self.data[i])
 
@@ -54,7 +54,8 @@ class BayesianHierarchicalClustering(
                 n_ch = n[i] + n[j]
                 log_d_ch = log_d[i] + log_d[j]
                 log_dk = BayesianHierarchicalClustering.__calc_log_d(
-                    self.alpha, n_ch, log_d_ch)
+                    self.alpha, n_ch, log_d_ch
+                )
                 # compute log(pi_k)
                 log_pik = np.log(self.alpha) + gammaln(n_ch) - log_dk
                 # compute log(p_k)
@@ -67,8 +68,11 @@ class BayesianHierarchicalClustering(
                 log_r = r1 - r2
                 # store results
                 merge_info = [i, j, log_r, r1, r2]
-                tmp_merge = merge_info if tmp_merge is None \
+                tmp_merge = (
+                    merge_info
+                    if tmp_merge is None
                     else np.vstack((tmp_merge, merge_info))
+                )
 
         # find clusters to merge
         arc_list = np.empty(0, dtype=api.Arc)
@@ -100,7 +104,8 @@ class BayesianHierarchicalClustering(
             # compute log(d_ij)
             log_d_ch = log_d[i] + log_d[j]
             log_d_ij = BayesianHierarchicalClustering.__calc_log_d(
-                self.alpha, n[ij], log_d_ch)
+                self.alpha, n[ij], log_d_ch
+            )
             log_d = np.append(log_d, log_d_ij)
             # update assignments
             assignments[np.argwhere(assignments == i)] = ij
@@ -129,14 +134,15 @@ class BayesianHierarchicalClustering(
                 n_ch = n[k] + n[ij]
                 log_d_ch = log_d[k] + log_d[ij]
                 log_dij = BayesianHierarchicalClustering.__calc_log_d(
-                    self.alpha, n_ch, log_d_ch)
+                    self.alpha, n_ch, log_d_ch
+                )
                 # compute log(pi_k)
                 log_pik = np.log(self.alpha) + gammaln(n_ch) - log_dij
                 # compute log(p_k)
-                data_merged = self.data[np.argwhere(
-                    assignments == active_nodes[k]).flatten()]
-                log_p_ij = self.model.calc_log_mlh(
-                    np.vstack((x_mat_ij, data_merged)))
+                data_merged = self.data[
+                    np.argwhere(assignments == active_nodes[k]).flatten()
+                ]
+                log_p_ij = self.model.calc_log_mlh(np.vstack((x_mat_ij, data_merged)))
                 # compute log(r_k)
                 log_p_ch = log_p[ij] + log_p[active_nodes[k]]
                 r1 = log_pik + log_p_ij
@@ -146,12 +152,14 @@ class BayesianHierarchicalClustering(
                 merge_info = [ij, active_nodes[k], log_r, r1, r2]
                 tmp_merge = np.vstack((tmp_merge, merge_info))
 
-        return api.Result(arc_list,
-                          np.arange(0, ij + 1),
-                          log_p[-1],
-                          np.array(weights),
-                          hierarchy_cut,
-                          len(np.unique(assignments)))
+        return api.Result(
+            arc_list,
+            np.arange(0, ij + 1),
+            log_p[-1],
+            np.array(weights),
+            hierarchy_cut,
+            len(np.unique(assignments)),
+        )
 
     @staticmethod
     def __calc_log_d(alpha, nk, log_d_ch):
