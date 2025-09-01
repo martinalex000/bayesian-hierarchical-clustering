@@ -16,7 +16,8 @@ class NormalInverseWishart(AbstractPrior):
     Reference: MURPHY, Kevin P.
                Conjugate Bayesian analysis of the Gaussian distribution.
                def, v. 1, n. 2σ2, p. 16, 2007.
-               https://www.cse.iitk.ac.in/users/piyush/courses/tpmi_winter19/readings/bayesGauss.pdf
+               https://www.cse.iitk.ac.in/users/piyush/courses/
+               tpmi_winter19/readings/bayesGauss.pdf
     """
 
     def __init__(self, s_mat, r, v, m):
@@ -42,13 +43,16 @@ class NormalInverseWishart(AbstractPrior):
         i,  # index of the row you want (int)
     ):
         """
-        Returns 1D array containing the log-likelihoods for pairs of points needed for the
-        initialization of bhc. This function combines i with all other points j > i and returns
-        the log-likelihood of those clusters (containing two points each).
+        Returns 1D array containing the log-likelihoods for pairs of points
+        needed for the initialization of bhc. This function combines i with
+        all other points j > i and returns the log-likelihood of those
+        clusters (containing two points each).
         """
         N, d = X.shape
         if d != self.s_mat.shape[0]:
-            raise ValueError("data dimension and prior scale matrix do not match")
+            raise ValueError(
+                "data dimension and prior scale matrix do not match"
+            )
 
         # ------------------------------------------------------------------
         # Pairwise sufficient statistics – only for j > i (batched)
@@ -72,7 +76,7 @@ class NormalInverseWishart(AbstractPrior):
         # ------------------------------------------------------------------
         rp = self.r + 2.0  # each cluster has two points
         vp = self.v + 2.0
-        sign, logdet = slogdet(s_mat_p)  # (N-i-1,)
+        sign, logdet = np.linalg.slogdet(s_mat_p)  # (N-i-1,)
         log_prior_post = (
             LOG2 * (vp * d / 2.0)
             + (d / 2.0) * np.log(2.0 * np.pi / rp)
@@ -87,7 +91,9 @@ class NormalInverseWishart(AbstractPrior):
     def __calc_log_prior(s_mat, r, v):
         d = s_mat.shape[0]
         log_prior = LOG2 * (v * d / 2.0) + (d / 2.0) * np.log(2.0 * np.pi / r)
-        log_prior += multigammaln(v / 2.0, d) - (v / 2.0) * np.log(np.linalg.det(s_mat))
+        log_prior += multigammaln(v / 2.0, d) - (v / 2.0) * np.log(
+            np.linalg.det(s_mat)
+        )
         return log_prior
 
     @staticmethod
@@ -96,7 +102,9 @@ class NormalInverseWishart(AbstractPrior):
         x_bar = np.mean(x_mat, axis=0)
         rp = r + n
         vp = v + n
-        s_mat_t = np.zeros(s_mat.shape) if n == 1 else (n - 1) * np.cov(x_mat.T)
+        s_mat_t = (
+            np.zeros(s_mat.shape) if n == 1 else (n - 1) * np.cov(x_mat.T)
+        )
         dt = (x_bar - m)[np.newaxis]
         s_mat_p = s_mat + s_mat_t + (r * n / rp) * np.dot(dt.T, dt)
         return s_mat_p, rp, vp

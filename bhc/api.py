@@ -45,7 +45,9 @@ class AbstractHierarchicalClustering(ABC):
     def build(self): ...
 
 
-class AbstractBayesianBasedHierarchicalClustering(AbstractHierarchicalClustering, ABC):
+class AbstractBayesianBasedHierarchicalClustering(
+    AbstractHierarchicalClustering, ABC
+):
     def __init__(self, data, model, alpha, cut_allowed):
         self.data = data
         self.model = model

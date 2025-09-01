@@ -8,7 +8,9 @@ from scipy.special import gammaln
 import bhc.api as api
 
 
-class BayesianHierarchicalClustering(api.AbstractBayesianBasedHierarchicalClustering):
+class BayesianHierarchicalClustering(
+    api.AbstractBayesianBasedHierarchicalClustering
+):
     """
     Reference: HELLER, Katherine A.; GHAHRAMANI, Zoubin.
                Bayesian hierarchical clustering.
@@ -52,7 +54,9 @@ class BayesianHierarchicalClustering(api.AbstractBayesianBasedHierarchicalCluste
         tmp_merge = np.empty((pair_count, 5), dtype=float)
         row = 0
         for i in range(n_objects):
-            log_p_k_row = self.model.row_of_log_likelihood_for_pairs(self.data, i)
+            log_p_k_row = self.model.row_of_log_likelihood_for_pairs(
+                self.data, i
+            )
             for j in range(i + 1, n_objects):
                 # compute log(d_k)
                 n_ch = n[i] + n[j]
@@ -78,7 +82,9 @@ class BayesianHierarchicalClustering(api.AbstractBayesianBasedHierarchicalCluste
         data_per_cluster = [np.array([self.data[i]]) for i in range(n_objects)]
         while active_nodes.size > 1:
             # find i, j with the highest probability of the merged hypothesis
-            position = np.argmax(tmp_merge[:, 2])  # returns the first occurrence
+            position = np.argmax(
+                tmp_merge[:, 2]
+            )  # returns the first occurrence
             i, j, log_r, r1, r2 = tmp_merge[position]
             i = int(i)
             j = int(j)
@@ -131,7 +137,9 @@ class BayesianHierarchicalClustering(api.AbstractBayesianBasedHierarchicalCluste
             log_p = np.append(log_p, log_p_ij)
 
             # for every pair ij x active
-            collected_merge_info = np.empty((len(active_nodes) - 1, 5), dtype=float)
+            collected_merge_info = np.empty(
+                (len(active_nodes) - 1, 5), dtype=float
+            )
             for k in range(active_nodes.size - 1):
                 # compute log(d_k)
                 n_ch = n[k] + n[ij]
