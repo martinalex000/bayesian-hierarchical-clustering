@@ -37,12 +37,14 @@ class Arc(object):
 
 class AbstractPrior(ABC):
     @abstractmethod
-    def calc_log_mlh(self, x_mat): ...
+    def calc_log_mlh(self, x_mat):
+        ...
 
 
 class AbstractHierarchicalClustering(ABC):
     @abstractmethod
-    def build(self): ...
+    def build(self):
+        ...
 
 
 class AbstractBayesianBasedHierarchicalClustering(

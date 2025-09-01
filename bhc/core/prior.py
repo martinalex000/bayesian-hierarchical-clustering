@@ -58,7 +58,7 @@ class NormalInverseWishart(AbstractPrior):
         # Pairwise sufficient statistics – only for j > i (batched)
         # ------------------------------------------------------------------
         # slice of points that matter
-        Xj = X[i + 1 :]  # shape (N-i-1, d)
+        Xj = X[i + 1:]  # shape (N-i-1, d)
         diff = X[i] - Xj  # broadcasted automatically
         x_bar = 0.5 * (X[i] + Xj)  # (N-i-1, d)
 
